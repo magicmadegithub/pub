@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -63,12 +64,15 @@ class LishCommand extends PubCommand {
   Future _publish(List<int> packageBytes) async {
     Uri cloudStorageUrl;
     try {
-      await oauth2.withClient(cache, (client) {
+//      await oauth2.withClient(cache, (client) {
+        var httpClient =http.Client();
         return log.progress('Uploading', () async {
           // TODO(nweiz): Cloud Storage can provide an XML-formatted error. We
           // should report that error and exit.
           var newUri = server.resolve("/api/packages/versions/new");
-          var response = await client.get(newUri, headers: pubApiHeaders);
+//          var uri=Uri(scheme: "http", host: "$newUri", queryParameters: pubApiHeaders);
+          var response = await httpClient.get(newUri, headers: pubApiHeaders);
+//          var response = await httpClient.get(uri);
           var parameters = parseJsonResponse(response);
 
           var url = _expectField(parameters, 'url', response);
@@ -87,13 +91,13 @@ class LishCommand extends PubCommand {
           request.files.add(http.MultipartFile.fromBytes('file', packageBytes,
               filename: 'package.tar.gz'));
           var postResponse =
-              await http.Response.fromStream(await client.send(request));
+              await http.Response.fromStream(await httpClient.send(request));
 
           var location = postResponse.headers['location'];
           if (location == null) throw PubHttpException(postResponse);
-          handleJsonSuccess(await client.get(location, headers: pubApiHeaders));
+          handleJsonSuccess(await httpClient.get(location, headers: pubApiHeaders));
         });
-      });
+//      });
     } on PubHttpException catch (error) {
       var url = error.response.request.url;
       if (url == cloudStorageUrl) {
