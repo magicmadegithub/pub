@@ -3,7 +3,6 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
@@ -13,7 +12,6 @@ import '../exit_codes.dart' as exit_codes;
 import '../http.dart';
 import '../io.dart';
 import '../log.dart' as log;
-import '../oauth2.dart' as oauth2;
 import '../utils.dart';
 import '../validator.dart';
 
